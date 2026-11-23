@@ -2,7 +2,7 @@
 
 An honest, India-aware backtester for daily prices, as a small Python library and a command-line tool.
 
-[![ci](https://github.com/mangalvinayak13-vin/backtestlab/actions/workflows/ci.yml/badge.svg)](https://github.com/mangalvinayak13-vin/backtestlab/actions/workflows/ci.yml)
+[![ci](https://github.com/mangalvinayak13-vin/backtest-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/mangalvinayak13-vin/backtest-lab/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.12%2B-blue)
 ![licence](https://img.shields.io/badge/licence-MIT-green)
 
@@ -23,7 +23,7 @@ One command takes prices and a strategy and writes a self-contained HTML report 
 You need Python 3.12 or newer.
 
 ```
-pip install git+https://github.com/mangalvinayak13-vin/backtestlab
+pip install git+https://github.com/mangalvinayak13-vin/backtest-lab
 ```
 
 ## Quick start
