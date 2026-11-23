@@ -1,0 +1,14 @@
+.venv/
+*.pyc
+.pytest*
+.mypy*
+.ruff*
+.hypothesis/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.DS*
+report.html
+report.json
