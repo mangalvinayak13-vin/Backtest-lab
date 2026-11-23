@@ -2,6 +2,22 @@
 
 My log of every change and why, newest first.
 
+## 24 Nov 2026: fixing the Windows ci failure
+
+What I did: fixed two problems that only showed up on the Windows ci job. The other four jobs (Ubuntu on Python 3.12, 3.13 and 3.14, and macOS) already passed.
+
+What was wrong and how I found it:
+- The snapshot test failed because the data source was written as `data\sampleprices.csv` on Windows and `data/sampleprices.csv` everywhere else. `loadCsv` now writes the path with forward slashes, so the report and the results file look the same on every system.
+- Two command line tests changed into their temporary folder, and Windows can't delete a folder that is the current folder, so the clean-up failed with a `PermissionError`. Those tests now stay in the repository folder and only write their files into the temporary one.
+
+Files: `src/backtestlab/csvsource.py` and `tests/testcli.py`.
+
+Tests that prevent it: the snapshot test already covers the path, and it only fails on Windows, so ci is what protects it. I can't run Windows here, so the next ci run is the real check.
+
+Checks: 325 tests pass and 1 is skipped, coverage is 100%, ruff and mypy are clean.
+
+Still open: confirm the Windows job is green after the next push.
+
 ## 24 Nov 2026: examples, README, notes and a real-data check
 
 What I did: wrote the two examples, the full README and a complete HOW-IT-WORKS.md, then checked everything against real prices and a fresh install.

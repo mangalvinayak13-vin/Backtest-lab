@@ -149,7 +149,8 @@ def loadCsv(path: str | Path, dateFormat: str | None = None) -> PriceData:
     columns = findColumns(lines[0][1])
     notes = [ADJUSTED] if "adjclose" in columns else []
     rows = [makeRow(cells, columns, number, dateFormat) for number, cells in lines[1:]]
-    return buildPrices(rows, "volume" in columns, str(location), notes)
+    source = str(location).replace("\\", "/")
+    return buildPrices(rows, "volume" in columns, source, notes)
 
 
 # save prices to a CSV file that loadCsv can read back exactly

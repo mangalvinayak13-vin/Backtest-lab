@@ -155,7 +155,10 @@ def testSettingsOptions(
 
 # a download runs, saves the cleaned prices, and those prices load back the same
 def testTickerRunAndSaveData(
-    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], workdir: Path
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    pytestconfig: pytest.Config,
+    workdir: Path,
 ) -> None:
     asked = fakeYahoo(monkeypatch)
     saved = workdir / "saved" / "prices.csv"
@@ -180,7 +183,7 @@ def testTickerRunAndSaveData(
         "--output",
         str(workdir / "report.html"),
     ]
-    assert runIn(monkeypatch, workdir, arguments) == 0
+    assert runIn(monkeypatch, pytestconfig.rootpath, arguments) == 0
     assert asked == ["TCS.NS", "^GSPC"]
     first = loadCsv(saved)
     assert first.frame.equals(loadCsv(saved).frame)
@@ -191,7 +194,10 @@ def testTickerRunAndSaveData(
 
 # a benchmark that can't be downloaded becomes a warning and the run goes on
 def testBenchmarkFailureIsAWarning(
-    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], workdir: Path
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    pytestconfig: pytest.Config,
+    workdir: Path,
 ) -> None:
     fakeYahoo(monkeypatch, failing=("^NSEI",))
     arguments = [
@@ -205,7 +211,7 @@ def testBenchmarkFailureIsAWarning(
         "--output",
         str(workdir / "report.html"),
     ]
-    assert runIn(monkeypatch, workdir, arguments) == 0
+    assert runIn(monkeypatch, pytestconfig.rootpath, arguments) == 0
     out = capsys.readouterr().out
     assert "The benchmark could not be loaded." in out
 
