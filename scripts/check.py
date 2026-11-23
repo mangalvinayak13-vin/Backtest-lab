@@ -20,7 +20,7 @@ def pythonFolders(root: Path) -> list[str]:
 def makeEnvironment(root: Path) -> dict[str, str]:
     environment = dict(os.environ)
     environment["PYTHONDONTWRITEBYTECODE"] = "1"
-    environment["MYPYPATH"] = str(root / "src")
+    environment["MYPYPATH"] = os.pathsep.join([str(root / "src"), str(root / "tests")])
     return environment
 
 

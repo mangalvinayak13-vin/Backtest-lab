@@ -7,6 +7,10 @@ from pathlib import Path
 
 import pytest
 
+from backtestlab.backtest import BacktestResult
+from backtestlab.report import writeReport
+from backtestlab.resultsfile import writeResultsFile
+
 LOWLINE = "\N{LOW LINE}"
 PRAGMA = re.compile(r"#\s*(type:\s*ignore|noqa|pragma:\s*no\s*cover|fmt:\s*(off|skip))")
 BINARY = {".png", ".jpg", ".jpeg", ".gif", ".ico", ".pdf"}
@@ -107,3 +111,28 @@ def testTheCheckersFindBadCode() -> None:
     assert docstringLines("x = 1\n") == []
     assert pragmaLines("x = 1  # noqa\n") == [1]
     assert pragmaLines("x = 'noqa'\n") == []
+
+
+# the report and the results file have no underscores either
+def testReportAndResultsFileHaveNoUnderscores(sampleResult: BacktestResult, workdir: Path) -> None:
+    writeReport(
+        sampleResult, workdir / "report.html", "backtestlab run --csv data/sampleprices.csv"
+    )
+    writeResultsFile(sampleResult, workdir / "report.json")
+    for name in ("report.html", "report.json"):
+        text = readText(workdir / name) or ""
+        assert LOWLINE not in text
+
+
+# every file of the package is one git keeps, so it reaches the repository and the wheel
+def testPackageFilesAreNotIgnored(pytestconfig: pytest.Config) -> None:
+    root = pytestconfig.rootpath
+    kept = set(listNames(root))
+    found = []
+    for step in (root / "src" / "backtestlab").walk():
+        folder, names = step[0], step[2]
+        for name in names:
+            if not name.endswith(".pyc") and not name.startswith(".DS"):
+                found.append("/".join((folder / name).parts[len(root.parts) :]))
+    assert len(found) > 20
+    assert [name for name in found if name not in kept] == []

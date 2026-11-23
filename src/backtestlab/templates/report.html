@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} | backtestlab report</title>
+<style>
+  :root {
+    --ink: #1f2933;
+    --muted: #5f6b7a;
+    --line: #e3e7ec;
+    --paper: #ffffff;
+    --wash: #f6f8fa;
+    --strategy: #2166ac;
+    --hold: #e08214;
+    --index: #7f7f7f;
+    --warn: #8a5a00;
+    --warnwash: #fff7e6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--wash);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 24px 64px;
+    background: var(--paper);
+  }
+  h1 { font-size: 26px; line-height: 1.25; margin: 0 0 6px; }
+  h2 { font-size: 19px; margin: 44px 0 12px; padding-top: 20px; border-top: 1px solid var(--line); }
+  h3 { font-size: 15px; margin: 24px 0 8px; }
+  p { margin: 0 0 12px; }
+  .lead { color: var(--muted); margin-bottom: 4px; }
+  .small { color: var(--muted); font-size: 13px; }
+  .warnings {
+    margin: 28px 0 0;
+    padding: 14px 18px;
+    background: var(--warnwash);
+    border-left: 4px solid var(--warn);
+    border-radius: 4px;
+  }
+  .warnings h2 { border: 0; margin: 0 0 8px; padding: 0; font-size: 16px; color: var(--warn); }
+  .warnings ul { margin: 0; padding-left: 18px; }
+  .warnings code { color: var(--muted); font-size: 12px; }
+  .summary { font-size: 16px; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .series { border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  .series h3 { margin: 0 0 10px; }
+  .series.strategy h3 { color: var(--strategy); }
+  .series.hold h3 { color: var(--hold); }
+  .numbers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+  .number span { display: block; color: var(--muted); font-size: 12px; }
+  .number strong { font-size: 20px; font-variant-numeric: tabular-nums; }
+  figure { margin: 18px 0; }
+  figure svg { width: 100%; height: auto; display: block; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 13px; color: var(--muted); font-weight: 600; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  .explain { color: var(--muted); font-size: 13px; }
+  .scroll { overflow-x: auto; }
+  .disclaimer { color: var(--muted); font-size: 13px; }
+  @media (max-width: 640px) {
+    main { padding: 24px 16px 48px; }
+    h1 { font-size: 22px; }
+    .cards { grid-template-columns: 1fr; }
+    .explain { display: none; }
+  }
+  @media print {
+    body { background: #ffffff; }
+    main { padding: 0; }
+    h2 { break-after: avoid; }
+    figure, table { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <h1>{{ title }}</h1>
+  <p class="lead">{{ source }}, {{ period }}</p>
+  <p class="small">Created on {{ created }} with backtestlab {{ version }}.</p>
+</header>
+
+{% if warnings %}
+<section class="warnings">
+  <h2>Warnings</h2>
+  <ul>
+  {% for warning in warnings %}
+    <li>{{ warning.message }} <code>{{ warning.code }}</code></li>
+  {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section>
+  <h2>Summary</h2>
+  <p class="summary">{{ summary | join(" ") }}</p>
+</section>
+
+<section>
+  <h2>Key numbers</h2>
+  <div class="cards">
+    <div class="series strategy">
+      <h3>Strategy</h3>
+      <div class="numbers">
+      {% for name, value in strategyCards %}
+        <div class="number"><span>{{ name }}</span><strong>{{ value }}</strong></div>
+      {% endfor %}
+      </div>
+    </div>
+    <div class="series hold">
+      <h3>Buy and hold</h3>
+      <div class="numbers">
+      {% for name, value in holdCards %}
+        <div class="number"><span>{{ name }}</span><strong>{{ value }}</strong></div>
+      {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Charts</h2>
+  <figure>{{ charts.growth | safe }}</figure>
+  <p class="small">Each line starts at 100, so 150 means the money grew by half.</p>
+  <figure>{{ charts.drawdown | safe }}</figure>
+  <p class="small">How far each line was below its own highest value so far.</p>
+  <figure>{{ charts.price | safe }}</figure>
+  <p class="small">The closing price, with a marker at the open price of every buy and sell.</p>
+</section>
+
+<section>
+  <h2>Metrics</h2>
+  <div class="scroll">
+  <table>
+    <tr>
+      <th>Metric</th>
+      <th class="num">Strategy</th>
+      <th class="num">Buy and hold</th>
+      {% if benchmarkLabel %}<th class="num">{{ benchmarkLabel }}</th>{% endif %}
+      <th class="explain">What it means</th>
+    </tr>
+    {% for row in metricRows %}
+    <tr>
+      <td>{{ row.name }}</td>
+      <td class="num">{{ row.strategy }}</td>
+      <td class="num">{{ row.hold }}</td>
+      {% if benchmarkLabel %}<td class="num">{{ row.benchmark }}</td>{% endif %}
+      <td class="explain">{{ row.explanation }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  </div>
+  {% if benchmarkLabel %}
+  <p class="small">The index is only a reference. No costs are charged on it.</p>
+  {% endif %}
+</section>
+
+<section>
+  <h2>Robustness</h2>
+  {% if robustness %}
+  <p>These checks reshuffle the daily returns the strategy actually earned, in blocks of {{ robustness.blockLength }} trading days (about a month), {{ robustness.simulations }} times. The same days are used for the strategy and for buy and hold, so each reshuffle compares them fairly. This shows how much the result depends on the particular order and mix of days. It does not run the strategy on new prices, and it can't predict the future.</p>
+  <figure>{{ charts.fan | safe }}</figure>
+  <figure>{{ charts.histogram | safe }}</figure>
+  <div class="scroll">
+  <table>
+    <tr><th>Reshuffled result</th><th class="num">5th percentile</th><th class="num">Median</th><th class="num">95th percentile</th></tr>
+    {% for name, low, middle, high in robustness.percentiles %}
+    <tr><td>{{ name }}</td><td class="num">{{ low }}</td><td class="num">{{ middle }}</td><td class="num">{{ high }}</td></tr>
+    {% endfor %}
+  </table>
+  </div>
+  <table>
+    {% for name, value in robustness.chances %}
+    <tr><td>{{ name }}</td><td class="num">{{ value }}</td></tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p>The reshuffling check was skipped because the test is too short. The warnings above say why.</p>
+  {% endif %}
+
+  <h3>What if costs were different?</h3>
+  <p>The strategy was run again with every charge and the slippage set to zero and then doubled. If the result falls apart when costs double, the strategy depends on cheap trading.</p>
+  <div class="scroll">
+  <table>
+    <tr><th>Run</th><th class="num">Total return</th><th class="num">Annualised return</th><th class="num">Sharpe ratio</th></tr>
+    {% for name, total, yearly, sharpe in sensitivity %}
+    <tr><td>{{ name }}</td><td class="num">{{ total }}</td><td class="num">{{ yearly }}</td><td class="num">{{ sharpe }}</td></tr>
+    {% endfor %}
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Trades</h2>
+  {% if trades %}
+  <div class="scroll">
+  <table>
+    <tr><th>Entry</th><th>Exit</th><th class="num">Days held</th><th class="num">Paid</th><th class="num">Received</th><th class="num">Profit</th><th class="num">Return</th></tr>
+    {% for trade in trades %}
+    <tr><td>{{ trade.entry }}</td><td>{{ trade.exit }}</td><td class="num">{{ trade.days }}</td><td class="num">{{ trade.paid }}</td><td class="num">{{ trade.received }}</td><td class="num">{{ trade.profit }}</td><td class="num">{{ trade.returnRate }}</td></tr>
+    {% endfor %}
+  </table>
+  </div>
+  {% if tradeCount > maxTrades %}
+  <p class="small">Only the first {{ maxTrades }} of {{ tradeCount }} round trips are shown. The results file has all of them.</p>
+  {% endif %}
+  <p class="small">An open position is valued at the last close, without the costs of selling it.</p>
+  {% else %}
+  <p>The strategy made no trades.</p>
+  {% endif %}
+</section>
+
+<section>
+  <h2>Settings used</h2>
+  <div class="scroll">
+  <table>
+    {% for name, value in settings %}
+    <tr><td>{{ name }}</td><td>{{ value }}</td></tr>
+    {% endfor %}
+  </table>
+  </div>
+  <h3>Charges</h3>
+  <table>
+    {% for name, value in charges %}
+    <tr><td>{{ name }}</td><td class="num">{{ value }}</td></tr>
+    {% endfor %}
+  </table>
+  <h3>Where the money went</h3>
+  <table>
+    {% for name, value in costs %}
+    <tr><td>{{ name }}</td><td class="num">{{ value }}</td></tr>
+    {% endfor %}
+  </table>
+  {% if costNotes %}
+  <ul class="small">
+    {% for note in costNotes %}<li>{{ note }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+  <p class="small">Limitations: long positions only, one asset, daily prices. Broker minimum charges and official rounding rules are ignored, idle cash earns nothing, and tax on gains is not included. Adjusted prices are rescaled using later dividends and splits, so rules based on exact price levels behave differently from how they would have at the time.</p>
+</section>
+
+<section>
+  <h2>Disclaimer</h2>
+  <p class="disclaimer">This report is for education and research only. It is not investment advice. Past results don't guarantee future results, and real costs, fills and data may differ from what is shown here.</p>
+</section>
+
+</main>
+</body>
+</html>

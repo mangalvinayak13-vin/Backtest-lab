@@ -28,3 +28,5 @@ jobs:
         run: python -m pip install -e ".[dev]"
       - name: check
         run: python scripts/check.py
+      - name: smoke test
+        run: backtestlab run --csv data/sampleprices.csv --strategy ma-crossover --benchmark none --output smoke/report.html
