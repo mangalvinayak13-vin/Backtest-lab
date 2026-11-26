@@ -1,4 +1,4 @@
-from dataclasses import replace
+from dataclasses import dataclass, replace
 
 from helpers import Scripted, exampleBars, plainSettings
 
@@ -6,6 +6,12 @@ from backtestlab.backtest import BacktestResult, runBacktest
 from backtestlab.prices import PriceData
 from backtestlab.strategies import BuyAndHold
 from backtestlab.summary import assetName, summarySentences
+
+
+# a strategy whose class name starts with a short form
+@dataclass(frozen=True)
+class RSIRule(BuyAndHold):
+    pass
 
 
 # the four example bars give these exact sentences, without the reshuffle sentence
@@ -50,3 +56,9 @@ def testOneTrade() -> None:
 def testAssetName() -> None:
     assert assetName("RELIANCE.NS (Yahoo Finance)") == "RELIANCE.NS"
     assert assetName("data/sampleprices.csv") == "the asset"
+
+
+# a short form at the start of a strategy name keeps its capitals in the sentence
+def testShortFormKeepsItsCapitals() -> None:
+    result = runBacktest(exampleBars(), RSIRule(), plainSettings())
+    assert "the RSI rule turned" in summarySentences(result)[0]

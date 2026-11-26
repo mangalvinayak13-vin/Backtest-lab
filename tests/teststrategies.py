@@ -1,4 +1,5 @@
 import math
+from dataclasses import dataclass
 
 import numpy as np
 import pandas as pd
@@ -189,3 +190,21 @@ def testStrategyLabels() -> None:
     crossover = strategyLabel(MovingAverageCrossover())
     assert crossover == "Moving average crossover (shortWindow=50, longWindow=200)"
     assert strategyLabel(Plain()) == "Custom strategy"
+
+
+# a strategy with a short form such as RSI in its class name
+@dataclass(frozen=True)
+class MyRSIRule(Plain):
+    window: int = 3
+
+
+# a strategy whose class name starts with a short form
+@dataclass(frozen=True)
+class SMA200Cross(Plain):
+    window: int = 3
+
+
+# short forms in a class name stay together and keep their capitals
+def testStrategyLabelKeepsShortForms() -> None:
+    assert strategyLabel(MyRSIRule()) == "My RSI rule (window=3)"
+    assert strategyLabel(SMA200Cross()) == "SMA200 cross (window=3)"

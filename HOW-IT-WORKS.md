@@ -40,7 +40,7 @@ backtestlab run --csv prices.csv --strategy ma-crossover
 5. The engine replays the strategy, and then buy and hold, over exactly the same days.
 6. The numbers are worked out for both, and for a market index if there is one.
 7. The Monte Carlo check and the cost check run, and the warnings are collected.
-8. The report and the results file are written, and a short summary is printed.
+8. The report and the results file are written, and a short summary is printed. `--output` names the HTML report, so a name ending in `.json` is refused (the results file would be written over the report). A file that can't be written gives an "Error: ..." line that names it.
 
 ## 3. Each part of the code
 
@@ -87,7 +87,7 @@ Costs are always included. Every trade pays brokerage, taxes and fees, and slipp
 
 The engine only trades when the target changes. If the strategy says "fully invested" every day, it buys once and holds. It doesn't keep trading just because prices moved.
 
-The window and the warm-up. A 200-day average can't be worked out until there are 200 days of prices. The test starts on the first day that has enough history before it, and a warning says so if that is later than you asked for. The earlier days are still given to the strategy. That is the warm-up.
+The window and the warm-up. A 200-day average can't be worked out until there are 200 days of prices. The test starts on the first day that has enough history before it. A warning says so if the warm-up makes that later than you asked for, or if you asked for a date before the data begins. A start on a weekend or holiday inside the data just moves to the next trading day, with no warning. The earlier days are still given to the strategy. That is the warm-up.
 
 The comparison is fair. Buy and hold runs through the same engine, on the same days, with the same costs and the same whole-share rule. That is the main question the report answers: did the strategy beat simply holding?
 

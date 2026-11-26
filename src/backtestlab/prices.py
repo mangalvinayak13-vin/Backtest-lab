@@ -7,6 +7,10 @@ import pandas as pd
 from backtestlab.errors import DataError
 from backtestlab.pricewarnings import findWarnings, listDates
 
+# the two notes a loader records when the prices have been adjusted
+CSVADJUSTED = "Prices were adjusted for dividends and splits using the Adj Close column."
+YAHOOADJUSTED = "Prices come from Yahoo Finance and are adjusted for splits and dividends."
+
 
 # daily prices as a table of dates and floats, with where they came from
 @dataclass(frozen=True)

@@ -2,10 +2,11 @@ import re
 from dataclasses import replace
 from pathlib import Path
 
+import pytest
 from helpers import exampleBars, makePrices, plainSettings, randomPrices
 
 from backtestlab.backtest import BacktestResult, runBacktest
-from backtestlab.prices import PriceData
+from backtestlab.prices import CSVADJUSTED, YAHOOADJUSTED, PriceData
 from backtestlab.report import renderReport, writeReport
 from backtestlab.strategies import BuyAndHold
 
@@ -118,3 +119,19 @@ def testDrawdownWithoutDates() -> None:
     rising = makePrices([(100.0 + step, 101.0 + step) for step in range(5)])
     html = renderReport(runBacktest(rising, BuyAndHold(), plainSettings()))
     assert "0.0%" in html
+
+
+# a jump warning mentions adjusting, but it is not a record that the prices were adjusted
+def testJumpWarningIsNotAnAdjustment() -> None:
+    prices = makePrices([(100.0, 100.0), (50.0, 50.0), (50.0, 50.0)])
+    result = runBacktest(prices, BuyAndHold(), plainSettings())
+    assert "adjusted for" in result.prices.notes[0]
+    assert "<td>No adjustment was recorded.</td>" in renderReport(result)
+
+
+# the note from either loader is shown as the price adjustment
+@pytest.mark.parametrize("note", [CSVADJUSTED, YAHOOADJUSTED])
+def testAdjustmentNoteIsShown(note: str) -> None:
+    prices = replace(exampleBars(), notes=("Dropped 1 rows.", note))
+    result = runBacktest(prices, BuyAndHold(), plainSettings())
+    assert f"<td>Price adjustment</td><td>{note}</td>" in renderReport(result)

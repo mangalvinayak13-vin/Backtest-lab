@@ -73,6 +73,7 @@ def chooseWindow(
         )
     requested = startDay if startDay is not None else days[0]
     warnings: tuple[RunWarning, ...] = ()
-    if days[first] > requested:
+    # a start on a holiday or weekend inside the data is not worth a warning
+    if first > wanted or requested < days[0]:
         warnings = (movedWarning(requested, days[first], first > wanted, warmupBars),)
     return Window(first, last, warnings)

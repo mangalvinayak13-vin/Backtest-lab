@@ -6,14 +6,13 @@ import yfinance
 
 from backtestlab.dates import parseDay
 from backtestlab.errors import DataError, SettingsError
-from backtestlab.prices import PriceData, Row, buildPrices, cleanHeader
+from backtestlab.prices import YAHOOADJUSTED, PriceData, Row, buildPrices, cleanHeader
 
 REQUIRED = ("open", "high", "low", "close")
 ADVICE = (
     "Check the ticker (Indian stocks end in .NS or .BO). Yahoo may be limiting requests, "
     "so try again later, or use a CSV file with --csv."
 )
-ADJUSTED = "Prices come from Yahoo Finance and are adjusted for splits and dividends."
 
 
 # the first day to ask for, and the day after the last one because Yahoo excludes the end
@@ -85,4 +84,4 @@ def downloadPrices(ticker: str, start: str, end: str, historyBars: int = 0) -> P
     table = fetchTable(ticker, begin, finish)
     columns = findColumns(table)
     rows = makeRows(table, columns)
-    return buildPrices(rows, "volume" in columns, f"{ticker} (Yahoo Finance)", [ADJUSTED])
+    return buildPrices(rows, "volume" in columns, f"{ticker} (Yahoo Finance)", [YAHOOADJUSTED])

@@ -19,7 +19,7 @@ Everything here comes from one script, [`crossover.py`](crossover.py), which run
   - Exchange and SEBI charges: NSE 0.00307% + SEBI 0.0001%, on both sides.
   - GST: 18% on brokerage, exchange and SEBI charges.
   - DP charge: ₹15.34 per sell, GST included.
-  - Checked on 23 Nov 2026 against zerodha.com/charges and groww.in/pricing. Check your own broker's charges.
+  - Checked on 23 Nov 2026 against zerodha.com/charges, groww.in/pricing and Angel One's brokerage page. Check your own broker's charges.
 - Data: daily prices from Yahoo Finance, adjusted for splits and dividends, downloaded once on 26 Nov 2026 and saved as CSV files. Every backtest reads those files, so the numbers can be rebuilt exactly. The price files are not in this repository, because Yahoo's terms don't allow sharing its data.
 
 ## What each number means

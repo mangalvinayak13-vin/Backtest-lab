@@ -2,6 +2,33 @@
 
 My log of every change and why, newest first.
 
+## 27 Nov 2026: four bugs and some smaller fixes
+
+What I did: fixed four bugs that I reproduced, and tidied five smaller things.
+
+What was wrong:
+- `--output res.json` gave the report and the results file the same name, so the JSON was written over the HTML and the run still said it had saved both. A name ending in `.json` (in any case) is now refused before anything is loaded.
+- When `--output` or `--save-data` was a folder, I got a Python traceback. The command now prints one "Error: could not write ..." line with the name of the file.
+- On a CSV with an unadjusted 50% drop, the "Price adjustment" row showed the jump warning, because I picked any note with the word "adjusted" in it. It now matches only the two notes the loaders write, which both live in `prices.py`.
+- `--start 2020-06-06` (a Saturday) on the sample data warned that "the data starts later", although it begins in 2019. The warning now appears only when the warm-up moves the start, or the start is before the first date in the data.
+
+How the tests missed them: no test used a `.json` or folder output, a loaded CSV with a jump in the report, or a start on a missing day inside the data. There are tests for each of these now.
+
+The smaller things:
+- A test of `--save-data` loaded the saved file twice and compared the two, so wrong saved prices would have passed. It now compares with the prices the fake Yahoo made, and I checked that it fails if the prices are saved with only two decimals.
+- A class called `MyRSIRule` showed as "My r s i rule". It is "My RSI rule" now, and the summary sentence keeps the capitals when the name starts with a short form.
+- The README named Zerodha, Groww and Angel One as the sources for the charges, but the note in `presets.py` left out Angel One. I added it there and to the same line in the crossover `RESULTS.md`.
+- I deleted `experiments/requirements.txt`. Its only line asked for python-pptx, which no committed code imports.
+- The README now says to clone the repository before trying the commands that use `data/sampleprices.csv`.
+
+Files: `cli.py`, `prices.py`, `csvsource.py`, `yahoosource.py`, `report.py`, `window.py`, `strategy.py`, `summary.py`, `presets.py`, five test files, `README.md`, `HOW-IT-WORKS.md`, `experiments/crossover/RESULTS.md` and `experiments/requirements.txt` (deleted).
+
+Try it: `backtestlab run --csv data/sampleprices.csv --strategy buy-and-hold --start 2020-06-06`
+
+Checks: 336 tests pass and 1 is skipped, coverage is 100%, ruff and mypy are clean.
+
+Still open: nothing for this part.
+
 ## 26 Nov 2026: tidying how the files talk about my post drafts
 
 What I did: renamed the local drafts folder to `experiments/crossover/drafts/`, and reworded one comment in `figures.py` and two lines in the entry below.

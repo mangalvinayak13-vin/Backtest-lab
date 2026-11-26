@@ -1,6 +1,6 @@
 from backtestlab.backtest import BacktestResult
 from backtestlab.formatting import formatDate, formatMoney, formatPercent
-from backtestlab.strategy import strategyLabel
+from backtestlab.strategy import isShortForm, strategyLabel
 
 YAHOO = " (Yahoo Finance)"
 
@@ -22,7 +22,8 @@ def openingSentence(result: BacktestResult) -> str:
     years = (last - first).days / 365.25
     change = "a gain" if metrics.totalReturn >= 0 else "a loss"
     label = strategyLabel(result.strategy)
-    name = label[0].lower() + label[1:]
+    startsShort = isShortForm(label.split()[0])
+    name = label if startsShort else label[0].lower() + label[1:]
     size = formatPercent(abs(metrics.totalReturn))
     return (
         f"Over {years:.1f} years ({formatDate(first)} to {formatDate(last)}), the {name} turned "

@@ -5,13 +5,12 @@ from datetime import date, datetime
 from pathlib import Path
 
 from backtestlab.errors import DataError
-from backtestlab.prices import PriceData, Row, buildPrices, cleanHeader
+from backtestlab.prices import CSVADJUSTED, PriceData, Row, buildPrices, cleanHeader
 
 REQUIRED = ("date", "open", "high", "low", "close")
 NUMBERS = ("open", "high", "low", "close", "volume", "adjclose")
 MONTHFORMATS = ("%d-%b-%Y", "%d %b %Y", "%b %d, %Y")
 NUMERICDATE = re.compile(r"\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}")
-ADJUSTED = "Prices were adjusted for dividends and splits using the Adj Close column."
 
 
 # read every line of the file as a list of cells
@@ -147,7 +146,7 @@ def loadCsv(path: str | Path, dateFormat: str | None = None) -> PriceData:
     if not lines:
         raise DataError(f"The file {location} is empty.")
     columns = findColumns(lines[0][1])
-    notes = [ADJUSTED] if "adjclose" in columns else []
+    notes = [CSVADJUSTED] if "adjclose" in columns else []
     rows = [makeRow(cells, columns, number, dateFormat) for number, cells in lines[1:]]
     source = str(location).replace("\\", "/")
     return buildPrices(rows, "volume" in columns, source, notes)

@@ -29,8 +29,8 @@ INDIA = Settings(
         "Exchange and SEBI charges: NSE 0.00307% + SEBI 0.0001%, on both sides.",
         "GST: 18% on brokerage, exchange and SEBI charges.",
         "DP charge: ₹15.34 per sell, GST included.",
-        "Checked on 23 Nov 2026 against zerodha.com/charges and groww.in/pricing. "
-        "Check your own broker's charges.",
+        "Checked on 23 Nov 2026 against zerodha.com/charges, groww.in/pricing and "
+        "Angel One's brokerage page. Check your own broker's charges.",
     ),
     costsCheckedOn="2026-11-23",
 )

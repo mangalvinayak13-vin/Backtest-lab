@@ -34,7 +34,14 @@ From the command line, with prices from Yahoo Finance:
 backtestlab run --ticker TCS.NS --strategy ma-crossover --preset india --start 2018-01-01 --end 2024-12-31
 ```
 
-With a CSV file of your own (columns `date`, `open`, `high`, `low`, `close`, and optionally `volume` and `Adj Close`):
+To try it on a CSV file, first clone the repository. The examples that use `data/sampleprices.csv` need this, because `pip install` doesn't give you that file:
+
+```
+git clone https://github.com/mangalvinayak13-vin/backtest-lab
+cd backtest-lab
+```
+
+Then run the command below from that folder. For your own CSV file, change the path. It needs the columns `date`, `open`, `high`, `low` and `close`, and can also have `volume` and `Adj Close`.
 
 ```
 backtestlab run --csv data/sampleprices.csv --strategy ma-crossover --param shortWindow=20 --param longWindow=100

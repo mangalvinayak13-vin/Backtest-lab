@@ -185,9 +185,8 @@ def testTickerRunAndSaveData(
     ]
     assert runIn(monkeypatch, pytestconfig.rootpath, arguments) == 0
     assert asked == ["TCS.NS", "^GSPC"]
-    first = loadCsv(saved)
-    assert first.frame.equals(loadCsv(saved).frame)
-    assert len(first.frame) == 300
+    # the fake Yahoo made the prices for the first ticker from seed 1
+    assert loadCsv(saved).frame.equals(randomPrices(1, 300).frame)
     out = capsys.readouterr().out
     assert "^GSPC" in out
 
@@ -214,6 +213,52 @@ def testBenchmarkFailureIsAWarning(
     assert runIn(monkeypatch, pytestconfig.rootpath, arguments) == 0
     out = capsys.readouterr().out
     assert "The benchmark could not be loaded." in out
+
+
+# a json output name would let the results file overwrite the report, so it is refused
+@pytest.mark.parametrize("name", ["res.json", "res.JSON"])
+def testJsonOutputNameIsRefused(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    pytestconfig: pytest.Config,
+    workdir: Path,
+    name: str,
+) -> None:
+    arguments = ["run", "--csv", SAMPLE, "--strategy", "buy-and-hold", "--output"]
+    assert runIn(monkeypatch, pytestconfig.rootpath, [*arguments, str(workdir / name)]) == 1
+    assert "--output is the name of the HTML report" in capsys.readouterr().err
+    assert not (workdir / name).exists()
+
+
+# an output that can't be written gives a one-line error naming it
+@pytest.mark.parametrize("blocked", ["report.html", "report.json"])
+def testOutputThatIsAFolder(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    pytestconfig: pytest.Config,
+    workdir: Path,
+    blocked: str,
+) -> None:
+    (workdir / blocked).mkdir()
+    arguments = ["run", "--csv", SAMPLE, "--strategy", "buy-and-hold", "--output"]
+    code = runIn(monkeypatch, pytestconfig.rootpath, [*arguments, str(workdir / "report.html")])
+    assert code == 1
+    error = capsys.readouterr().err
+    assert error.startswith(f"Error: could not write {workdir / blocked} (")
+    assert "Traceback" not in error
+
+
+# saving the downloaded prices onto a folder gives the same kind of error
+def testSaveDataThatIsAFolder(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    pytestconfig: pytest.Config,
+    workdir: Path,
+) -> None:
+    fakeYahoo(monkeypatch)
+    arguments = ["run", "--ticker", "X", "--strategy", "buy-and-hold", "--save-data"]
+    assert runIn(monkeypatch, pytestconfig.rootpath, [*arguments, str(workdir)]) == 1
+    assert capsys.readouterr().err.startswith(f"Error: could not write {workdir} (")
 
 
 # every user mistake returns 1 with a helpful message

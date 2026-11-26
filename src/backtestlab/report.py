@@ -9,6 +9,7 @@ from backtestlab.backtest import BacktestResult
 from backtestlab.charts import allCharts
 from backtestlab.formatting import formatDate, formatMoney, formatPercent
 from backtestlab.metrics import Metrics
+from backtestlab.prices import CSVADJUSTED, YAHOOADJUSTED
 from backtestlab.strategy import strategyLabel
 from backtestlab.summary import summarySentences
 
@@ -159,7 +160,7 @@ def chargeRows(result: BacktestResult) -> list[tuple[str, str]]:
 
 # the price adjustment, taken from the notes made while loading
 def adjustmentText(result: BacktestResult) -> str:
-    adjusted = [note for note in result.prices.notes if "adjusted" in note]
+    adjusted = [note for note in result.prices.notes if note in (CSVADJUSTED, YAHOOADJUSTED)]
     return adjusted[0] if adjusted else "No adjustment was recorded."
 
 

@@ -2,6 +2,7 @@ import pytest
 from helpers import makePrices
 
 from backtestlab.errors import DataError, SettingsError
+from backtestlab.prices import PriceData
 from backtestlab.window import chooseWindow
 
 # ten daily bars from 1 Jan 2024 to 10 Jan 2024
@@ -61,6 +62,15 @@ def testStartBeforeData() -> None:
     assert window.warnings[0].message == (
         "The test starts on 1 Jan 2024 instead of 25 Dec 2023 because the data starts later."
     )
+
+
+# a start on a missing day inside the data moves to the next bar without any warning
+def testStartOnAGapInsideTheData() -> None:
+    bars = makePrices([(100.0, 100.0)] * 10).frame
+    gappy = PriceData(bars.drop(bars.index[3]), "test", ())
+    window = chooseWindow(gappy, 0, start="2024-01-04")
+    assert window.first == 3
+    assert window.warnings == ()
 
 
 # a warm-up of one bar needs no history before the first bar

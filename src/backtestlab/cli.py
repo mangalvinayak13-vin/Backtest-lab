@@ -131,6 +131,7 @@ def checkCombinations(options: Options) -> None:
         raise SettingsError("--save-data only works with --ticker.")
     if options.get("--date-format") is not None and not hasCsv:
         raise SettingsError("--date-format only works with --csv.")
+    outputPaths(options)
 
 
 # the start and end dates for a download: by default the last ten years up to today
@@ -156,7 +157,10 @@ def loadPrices(options: Options, strategy: Strategy) -> tuple[PriceData, str | N
     prices = downloadPrices(ticker, start, end, historyBars=strategy.warmupBars)
     savePath = options.get("--save-data")
     if savePath is not None:
-        saveCsv(prices, savePath)
+        try:
+            saveCsv(prices, savePath)
+        except OSError as error:
+            raise writeFailure(savePath, error) from error
         print(f"Saved the prices to {savePath}")
     return prices, start, end
 
@@ -185,7 +189,21 @@ def loadBenchmark(
 # the report path and the results path next to it
 def outputPaths(options: Options) -> tuple[Path, Path]:
     report = Path(options.get("--output") or "report.html")
+    # lower case too, because some computers treat res.JSON and res.json as one file
+    if report.suffix.lower() == ".json":
+        raise SettingsError(
+            "--output is the name of the HTML report, so it can't end in .json. Use a name "
+            "such as report.html, and the .json file is written next to it."
+        )
     return report, report.parent / f"{report.stem}.json"
+
+
+# the error for a file that could not be written
+def writeFailure(path: str | Path, error: OSError) -> SettingsError:
+    return SettingsError(
+        f"could not write {path} ({error.strerror}). Check that it is a file you can "
+        "write to, and not a folder."
+    )
 
 
 # run one backtest from the command line and write both files
@@ -203,12 +221,23 @@ def runCommand(arguments: list[str]) -> int:
     return writeOutputs(result, options, arguments)
 
 
-# write the report and the results file, then print what happened
+# write the report and then the results file, naming the one that fails
+def saveOutputs(result: BacktestResult, report: Path, results: Path, command: str) -> None:
+    try:
+        writeReport(result, report, command)
+    except OSError as error:
+        raise writeFailure(report, error) from error
+    try:
+        writeResultsFile(result, results)
+    except OSError as error:
+        raise writeFailure(results, error) from error
+
+
+# write both files, then print what happened
 def writeOutputs(result: BacktestResult, options: Options, arguments: list[str]) -> int:
     report, results = outputPaths(options)
     print("Writing the report")
-    writeReport(result, report, shlex.join(["backtestlab", "run", *arguments]))
-    writeResultsFile(result, results)
+    saveOutputs(result, report, results, shlex.join(["backtestlab", "run", *arguments]))
     print()
     print("\n".join(runLines(result, str(report), str(results))))
     return 0
