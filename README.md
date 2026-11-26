@@ -115,6 +115,24 @@ The page has no JavaScript and loads nothing from the internet, so it opens offl
 - Fragile results: the cost table shows what happens when charges double.
 - Unadjusted prices and too few trades: both give warnings.
 
+## A real test: the crossover against buy and hold
+
+I ran the 50-day moving average crossover against long windows of 100, 150, 175 and 200 days on TCS, Reliance and HDFC Bank from 2018 to 2024, with Indian charges. Buy and hold made more money in all 12 tests, and it still did with every cost set to zero. The full breakdown, with the worst falls, time under water, the Monte Carlo check, a wider grid of windows, the 2008 to 2017 period and a stock that collapsed, is in [experiments/crossover/RESULTS.md](experiments/crossover/RESULTS.md). One script rebuilds every number and chart in it.
+
+## How it's tested
+
+Every push runs the checks on GitHub in five setups: Ubuntu with Python 3.12, 3.13 and 3.14, and Windows and macOS with Python 3.13. Each one installs the package, runs ruff, mypy in strict mode and the tests, then runs a backtest on the sample data from the command line. The badge at the top shows whether the latest run passed.
+
+The tests include:
+
+- examples I worked out by hand for the trades, the Indian charges and the metrics;
+- a check that changing later prices leaves every earlier decision and trade the same;
+- a second, separate formula that has to give the same equity as the engine;
+- random price series, to check that cash and shares never go below zero;
+- a saved result for the sample data, so the numbers can't change without me noticing.
+
+The tests need no internet. One extra test downloads a real ticker, and it only runs when `BACKTESTLABLIVE=1` is set.
+
 ## Presets and costs
 
 `default` has no currency symbol, 100,000 starting cash, 0.1% brokerage per order, 0.05% slippage and whole shares.

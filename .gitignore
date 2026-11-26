@@ -13,3 +13,6 @@ build/
 report.html
 report.json
 !src/backtestlab/templates/report.html
+experiments/crossover/prices/
+experiments/crossover/reports/
+experiments/crossover/drafts/

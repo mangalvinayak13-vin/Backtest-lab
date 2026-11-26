@@ -34,6 +34,7 @@ line-length = 100
 target-version = "py312"
 
 [tool.ruff.lint]
+allowed-confusables = ["×"]
 select = ["E", "W", "F", "I", "B", "UP", "SIM", "RUF", "C90", "T20", "PT", "PTH", "ERA"]
 
 [tool.ruff.lint.mccabe]
@@ -43,3 +44,4 @@ max-complexity = 8
 "src/backtestlab/cli.py" = ["T20"]
 "scripts/*" = ["T20"]
 "examples/*" = ["T20"]
+"experiments/*" = ["T20"]

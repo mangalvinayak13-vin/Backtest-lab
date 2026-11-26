@@ -2,6 +2,57 @@
 
 My log of every change and why, newest first.
 
+## 26 Nov 2026: tidying how the files talk about my post drafts
+
+What I did: renamed the local drafts folder to `experiments/crossover/drafts/`, and reworded one comment in `figures.py` and two lines in the entry below.
+
+Why: so no file or folder here names the site where I plan to post.
+
+Files: `.gitignore`, `PROGRESS.md` and `experiments/crossover/figures.py`.
+
+Try it: `python scripts/check.py`
+
+Checks: 325 tests pass and 1 is skipped, coverage is 100%, ruff and mypy are clean.
+
+Still open: nothing for this part.
+
+## 26 Nov 2026: the full crossover results
+
+What I did: added `experiments/crossover/`, which reruns the moving average crossover tests I shared after my launch post and writes `results.csv`, nine charts and `RESULTS.md`. It covers the 12 tests I promised (50/100, 50/150, 50/175 and 50/200 on TCS, Reliance and HDFC Bank, 2018 to 2024) and some extra checks: zero costs, seeds 1 to 5, 6% interest on idle cash, 69 window pairs, 2008 to 2017, the NIFTY 50 index and YES Bank. I also added the report screenshot `docs/report.png` and a short README section that links to the results.
+
+Why: I promised a full breakdown, and every number in it has to be something anyone can rebuild. The experiment only uses backtestlab's own functions, so it also tests the library on real data.
+
+Files:
+- `experiments/crossover/crossover.py`: the script. `download` saves the prices once, `run` rebuilds everything from them in about two minutes.
+- `plan.py` (which runs), `pricefiles.py` (saving and loading the prices), `measures.py` (time under water, the crash-year fall, interest on cash and time out of the market, which backtestlab doesn't report), `records.py` (one row of `results.csv`), `crosscheck.py` (three numbers worked out again by hand), `figures.py` (the charts), `page.py` and `template.md` (`RESULTS.md`).
+- `scripts/check.py`: mypy now checks `experiments` too.
+- `pyproject.toml`: `print` is allowed in `experiments`, and ruff allows the × sign.
+- `.gitignore`: the saved prices, the per-run reports and my post drafts stay out of git.
+
+Try it:
+- `python experiments/crossover/crossover.py download`
+- `python experiments/crossover/crossover.py run`
+
+What I found: the 50/200 numbers are the same as in my real-data check below (TCS 162.6% against 253.7%, Reliance 39.7% against 199.1%, HDFC Bank 22.8% against 100.9%). Buy and hold won all 12 tests, and none of them wins even with zero costs. The NIFTYBEES prices on Yahoo have an unadjusted unit split in December 2019, so the experiment uses the NIFTY 50 index instead and says so. The `^NSEI` data also has no bar on 1 Jan 2018.
+
+Checks: running the script three times gave the same `results.csv` byte for byte, and the nine hand-worked checks match the tool. 325 tests pass and 1 is skipped, coverage is 100%, ruff and mypy are clean.
+
+Still open: nothing in the library changed. Time under water and a crash-year fall would be useful in the report itself (see the ideas below).
+
+## 25 Nov 2026: saying in the README how the project is tested
+
+What I did: added a "How it's tested" section to the README. I also confirmed that the ci run for the last commit (`58c760b`) passed on all five jobs, including Windows, which closes the open point in the entry below.
+
+Why: all the jobs are green now, so someone visiting the page should be able to see what the green badge covers.
+
+Files: `README.md` and `PROGRESS.md`.
+
+Try it: `python scripts/check.py`
+
+Checks: 325 tests pass and 1 is skipped, coverage is 100%, ruff and mypy are clean.
+
+Still open: the README links to `docs/report.png`, which I haven't added yet, so the picture doesn't show. (Added on 26 Nov.)
+
 ## 24 Nov 2026: fixing the Windows ci failure
 
 What I did: fixed two problems that only showed up on the Windows ci job. The other four jobs (Ubuntu on Python 3.12, 3.13 and 3.14, and macOS) already passed.
@@ -272,3 +323,6 @@ Still open:
 - A `--quiet` option that prints only the results table.
 - An option to earn a fixed interest rate on idle cash.
 - Showing the cost sensitivity as a small chart as well as a table.
+- Time under water (the longest stretch below an earlier high) next to maximum drawdown in the report and the summary.
+- A sweep command that runs a grid of strategy settings and draws the heatmap, warning that a best cell may be luck.
+- A total return index (with dividends) as the market benchmark, if a reliable free source exists.

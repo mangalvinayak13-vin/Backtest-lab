@@ -3,7 +3,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-FOLDERS = ("src", "tests", "scripts", "examples")
+FOLDERS = ("src", "tests", "scripts", "examples", "experiments")
 
 
 # the repository folder is one level above scripts
@@ -16,11 +16,12 @@ def pythonFolders(root: Path) -> list[str]:
     return [name for name in FOLDERS if any((root / name).rglob("*.py"))]
 
 
-# the environment every tool runs in, with no bytecode folders and mypy finding src
+# the environment every tool runs in, with no bytecode folders and mypy finding every module
 def makeEnvironment(root: Path) -> dict[str, str]:
     environment = dict(os.environ)
     environment["PYTHONDONTWRITEBYTECODE"] = "1"
-    environment["MYPYPATH"] = os.pathsep.join([str(root / "src"), str(root / "tests")])
+    folders = [root / "src", root / "tests", root / "experiments" / "crossover"]
+    environment["MYPYPATH"] = os.pathsep.join(str(folder) for folder in folders)
     return environment
 
 
